@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.trimFinalNewlines": true,
+		"files.insertFinalNewline": true,
+		"editor.trimAutoWhitespace": true,
+		"editor.codeActionsOnSave": {
+			"source.organizeImports.ruff": "always"
+		},
+		"files.trimTrailingWhitespace": true,
+		"editor.formatOnSave": true
+	}
+}

@@ -1,0 +1,15 @@
+[project]
+name = "immich-downsizer"
+version = "0.1.0"
+description = "Tiny python app for replacing original video files with transcoded one in immich"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "environs>=14.1.1",
+    "psycopg2>=2.9.10",
+    "requests>=2.32.3",
+]
+
+[tool.pyright]
+reportUnusedCallResult=false
+reportUnknownMemberType=false
