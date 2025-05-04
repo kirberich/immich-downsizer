@@ -25,7 +25,6 @@ SELECT
 INNER JOIN exif ON exif."assetId" = assets.id
 WHERE
     type='VIDEO'
-    and exif."fileSizeInByte" > 100000000
     and exif."exifImageHeight" > 1080
     and exif."exifImageWidth" > 1080
 """
