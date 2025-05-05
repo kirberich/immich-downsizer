@@ -136,17 +136,27 @@ def main():
     print(f"found {len(large_videos)} large videos to compress")
 
     for large_video in large_videos:
+        original_file = large_video["encoded_path"]
+        encoded_file = large_video["encoded_path"]
         print(f"processing {large_video['original_path']}")
-        if large_video["encoded_path"] is None or large_video["original_path"] is None:
+        if encoded_file is None or original_file is None:
             print(
                 f"Path '{large_video['encoded_path']}' for {large_video['original_path']} doesn't start with 'upload', skipping!"
             )
             continue
 
+        if not original_file.exists() or not encoded_file.exists():
+            print(f"Missing files for {original_file}, skipping!")
+            continue
+
+        if original_file.stat().st_size == encoded_file.stat().st_size:
+            print("Original and encoded files are already the same, skipping!")
+            continue
+
         # copy the encoded video to a temporary file
         tmp_file = shutil.copyfile(
-            large_video["encoded_path"],
-            large_video["original_path"].parent / "tmp",
+            encoded_file,
+            original_file.parent / "tmp",
         )
 
         # copy the exif metadata from the _original_ file on the encoded one
@@ -154,7 +164,7 @@ def main():
             [
                 "exiftool",
                 "-tagsFromFile",
-                large_video["original_path"],
+                original_file,
                 tmp_file,
                 "-overwrite_original",
             ]
@@ -172,7 +182,7 @@ def main():
         )
 
         # overwrite the original file with the temporary one
-        shutil.move(tmp_file, large_video["original_path"])
+        shutil.move(tmp_file, original_file)
 
         # Trigger a rescan of the metadata
         refresh_metadata(api_url=api_url, api_key=api_key, asset_id=large_video["id"])
