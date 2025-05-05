@@ -190,7 +190,8 @@ def main():
         shutil.move(tmp_file, original_file)
 
         # Delete the encoded file
-        shutil.rmtree(encoded_file)
+        encoded_file.unlink()
+
         # Run the transcode-video job, which will see that no transcoding is necessary and update the database accordingly
         trigger_asset_job(api_url=api_url, api_key=api_key, asset_id=large_video["id"], job_id="transcode-video")
 
