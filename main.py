@@ -41,7 +41,12 @@ def refresh_metadata(api_url: str, api_key: str, asset_id: str):
         },
         json={"asset_ids": [asset_id], "name": "refresh-metadata"},
     )
-    response.raise_for_status()
+
+    try:
+        response.raise_for_status()
+    except requests.HTTPError:
+        print(response.json())
+        raise
 
 
 def refresh_all_metadata(api_url: str, api_key: str):
@@ -100,9 +105,7 @@ class Compressor:
         return [
             {
                 "id": cast(str, row["id"]),
-                "encoded_path": self.get_actual_path(
-                    cast(str, row["encodedVideoPath"])
-                ),
+                "encoded_path": self.get_actual_path(cast(str, row["encodedVideoPath"])),
                 "original_path": self.get_actual_path(cast(str, row["originalPath"])),
                 "width": cast(int, row["exifImageWidth"]),
                 "height": cast(int, row["exifImageHeight"]),
@@ -150,7 +153,8 @@ def main():
             continue
 
         if original_file.stat().st_size == encoded_file.stat().st_size:
-            print("Original and encoded files are already the same, skipping!")
+            print("Original and encoded files are already the same, only updating metadata!")
+            refresh_metadata(api_url=api_url, api_key=api_key, asset_id=large_video["id"])
             continue
 
         # copy the encoded video to a temporary file
