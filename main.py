@@ -32,7 +32,7 @@ WHERE
 
 def refresh_metadata(api_url: str, api_key: str, asset_id: str):
     response = requests.request(
-        "PUT",
+        "POST",
         f"{api_url}/api/assets/jobs",
         headers={
             "Content-Type": "application/json",
