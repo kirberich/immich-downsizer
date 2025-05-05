@@ -39,7 +39,7 @@ def refresh_metadata(api_url: str, api_key: str, asset_id: str):
             "Accept": "application/json",
             "x-api-key": api_key,
         },
-        json={"asset_ids": [asset_id], "name": "refresh-metadata"},
+        json={"assetIds": [asset_id], "name": "refresh-metadata"},
     )
 
     try:
