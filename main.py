@@ -139,21 +139,19 @@ def main():
     print(f"found {len(large_videos)} large videos to compress")
 
     for large_video in large_videos:
-        original_file = large_video["encoded_path"]
+        original_file = large_video["original_path"]
         encoded_file = large_video["encoded_path"]
-        print(f"processing {large_video['id']} ({large_video['original_path']})")
+        print(f"processing {large_video['id']} ({original_file})")
         if encoded_file is None or original_file is None:
-            print(
-                f"Path '{large_video['encoded_path']}' for {large_video['original_path']} doesn't start with 'upload', skipping!"
-            )
+            print(f"Path '{encoded_file}' for {original_file} doesn't start with 'upload', skipping!")
             continue
 
         if not original_file.exists() or not encoded_file.exists():
             print(f"Missing files for {original_file}, skipping!")
             continue
 
-        if original_file.stat().st_size == encoded_file.stat().st_size:
-            print("Original and encoded files are already the same, only updating metadata!")
+        if encoded_file.stat().st_size >= original_file.stat().st_size:
+            print("Encoded file is same size/larger than original, only updating metadata!")
             refresh_metadata(api_url=api_url, api_key=api_key, asset_id=large_video["id"])
             continue
 
