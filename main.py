@@ -2,7 +2,7 @@ import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TypedDict, cast
+from typing import Literal, TypedDict, cast
 
 import psycopg2
 import psycopg2.extras
@@ -31,7 +31,9 @@ WHERE
 """
 
 
-def refresh_metadata(api_url: str, api_key: str, asset_id: str):
+def trigger_asset_job(
+    api_url: str, api_key: str, asset_id: str, job_id: Literal["refresh-metadata", "transcode-video"]
+):
     response = requests.request(
         "POST",
         f"{api_url}/api/assets/jobs",
@@ -40,7 +42,7 @@ def refresh_metadata(api_url: str, api_key: str, asset_id: str):
             "Accept": "application/json",
             "x-api-key": api_key,
         },
-        json={"assetIds": [asset_id], "name": "refresh-metadata"},
+        json={"assetIds": [asset_id], "name": job_id},
     )
 
     try:
@@ -153,7 +155,7 @@ def main():
 
         if encoded_file.stat().st_size >= original_file.stat().st_size:
             print("Encoded file is same size/larger than original, only updating metadata!")
-            refresh_metadata(api_url=api_url, api_key=api_key, asset_id=large_video["id"])
+            trigger_asset_job(api_url=api_url, api_key=api_key, asset_id=large_video["id"], job_id="refresh-metadata")
             continue
 
         # copy the encoded video to a temporary file
@@ -187,8 +189,13 @@ def main():
         # overwrite the original file with the temporary one
         shutil.move(tmp_file, original_file)
 
+        # Delete the encoded file
+        shutil.rmtree(encoded_file)
+        # Run the transcode-video job, which will see that no transcoding is necessary and update the database accordingly
+        trigger_asset_job(api_url=api_url, api_key=api_key, asset_id=large_video["id"], job_id="transcode-video")
+
         # Trigger a rescan of the metadata
-        refresh_metadata(api_url=api_url, api_key=api_key, asset_id=large_video["id"])
+        trigger_asset_job(api_url=api_url, api_key=api_key, asset_id=large_video["id"], job_id="refresh-metadata")
 
 
 if __name__ == "__main__":
