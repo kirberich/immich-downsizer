@@ -30,7 +30,21 @@ WHERE
 """
 
 
-def refresh_metadata(api_url: str, api_key: str):
+def refresh_metadata(api_url: str, api_key: str, asset_id: str):
+    response = requests.request(
+        "PUT",
+        f"{api_url}/api/assets/jobs",
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-api-key": api_key,
+        },
+        json={"asset_ids": [asset_id], "name": "refresh-metadata"},
+    )
+    response.raise_for_status()
+
+
+def refresh_all_metadata(api_url: str, api_key: str):
     response = requests.request(
         "PUT",
         f"{api_url}/api/jobs/metadataExtraction",
@@ -41,6 +55,7 @@ def refresh_metadata(api_url: str, api_key: str):
         },
         json={"command": "start", "force": True},
     )
+    response.raise_for_status()
 
     print(response.json())
 
@@ -159,8 +174,8 @@ def main():
         # overwrite the original file with the temporary one
         shutil.move(tmp_file, large_video["original_path"])
 
-    # Trigger a rescan of all metadata
-    refresh_metadata(api_url=api_url, api_key=api_key)
+        # Trigger a rescan of the metadata
+        refresh_metadata(api_url=api_url, api_key=api_key, asset_id=large_video["id"])
 
 
 if __name__ == "__main__":
