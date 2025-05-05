@@ -27,6 +27,7 @@ WHERE
     type='VIDEO'
     and exif."exifImageHeight" > 1080
     and exif."exifImageWidth" > 1080
+    and exif."livePhotoCID" is null
 """
 
 
