@@ -141,7 +141,7 @@ def main():
     for large_video in large_videos:
         original_file = large_video["encoded_path"]
         encoded_file = large_video["encoded_path"]
-        print(f"processing {large_video['original_path']}")
+        print(f"processing {large_video['id']} ({large_video['original_path']})")
         if encoded_file is None or original_file is None:
             print(
                 f"Path '{large_video['encoded_path']}' for {large_video['original_path']} doesn't start with 'upload', skipping!"
